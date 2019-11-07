@@ -1,3 +1,13 @@
 This is information that some of the files in this directory were developed by Bruce Gillespie and Dave Glass.
 
 rsappapi.py is Reconsentinel REST API before MSP changes.
+
+The files I developed are the following:
+
+selenium_ssh.py
+custDevices.py
+mSPpyUnit.py
+subscriptionsLicense.py
+userGroupRole.py
+
+
