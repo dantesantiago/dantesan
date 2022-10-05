@@ -102,6 +102,7 @@ def set_panel_to_RAC():
 def close_Chrome(driver):
     driver.quit()
     write_log("END: {0} - Chromedriver quits.".format(__name__))
+    sys.exit()
 
 
 if __name__ == "__main__":
@@ -166,6 +167,9 @@ if __name__ == "__main__":
     rtn_list = create_card_data(driver, num_cards)
     if (rtn_list[0] is False):
         write_log("{0} - ERROR in create_card_data() : {1}"
+            .format(__name__, rtn_list[1]))
+        # print the error
+        print("{0} - ERROR in create_card_data() : {1}"
             .format(__name__, rtn_list[1]))
         close_Chrome(driver)
 
