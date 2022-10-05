@@ -79,6 +79,8 @@ BACKWARD_TEN_LCTR = "//*[local-name()='svg' and @aria-label='{0}']".format(BACKW
 
 NO_CARD_MSG_LCTR = "//div[text()='cards are not available on this page']"
 
+ARIA_CLOSE_LCTR = "//*[local-name()='svg' and @aria-label='close']"
+
 # LOCATORS
 
 
@@ -182,7 +184,7 @@ def create_card_data(driver, num_cards = None):
         # press Actions and select Add Card
         named_button = click_named_button(driver, ACTIONS)
         if(named_button is None):
-            return [False, "{0} button is missing.".format(ACTION), None]
+            return [False, "{0} button is missing.".format(ACTIONS), None]
 
         dropdown_item = click_a_dropdown_item(driver, ADD_CARD)
         if(dropdown_item is None):
@@ -206,9 +208,13 @@ def create_card_data(driver, num_cards = None):
            return [False, "{0} button is missing.".format(SAVE), None]
         time.sleep(1)
 
-        icon_button = click_aria_label_icon(driver, CLOSE)
-        if(icon_button is None):
-           return [False, "{0} icon button is missing.".format(CLOSE), None]
+        # do not press Close 
+        #icon_button = click_aria_label_icon(driver, CLOSE)
+        #if(icon_button is None):
+        #   return [False, "{0} icon button is missing.".format(CLOSE), None]
+        # use wait instead of sleep, though it works!
+        #time.sleep(4)
+        verify_notice_closed(driver, ARIA_CLOSE_LCTR)
 
         write_log("{0} - card_id = {1} added.".
             format(create_card_data.__name__, card_num))
@@ -327,6 +333,23 @@ def get_card_wes(driver):
            format(get_card_wes.__name__))
 
     return None
+
+
+#  Wait till notice closes. - dantesan--sada--20022-10-05
+#    
+#
+# get_card_wes
+#
+# driver  - WebDriver
+# close_xpath - 
+#
+# Returns : True if inotice is not visible. anymore.
+#
+def verify_notice_closed(driver, close_xpath):
+    while(verify_element_invisible(driver, XPATH, close_xpath) is not True):
+        continue
+    return True
+
 
 #  Forward ten or back ten. - dantesan--sada--20022-09-16
 #
