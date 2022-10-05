@@ -46,6 +46,7 @@ def open_webpage(driver, pdu_webpage_obj):
     #driver.(1525, 600)  
     #time.sleep(3)
 
+
 def wait_and_get_element(driver, element_by_css):
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, element_by_css)))
     element_name = driver.find_element_by_css_selector(element_by_css)
@@ -147,6 +148,7 @@ def wait_and_get_elements_by(driver, find_by, element_by, dont_wait = None):
     #ActionChains(driver).move_to_element(element_name).perform()
     return element_names
 
+
 # Verify element/s is/are invisible. - dantesan--sada--20022-09-21
 #
 # verify_element_invisible
@@ -166,6 +168,7 @@ def verify_element_invisible(driver, find_by, element_by):
         invisible = False
 
     return invisible
+
 
 # Verify element/s is/are visible. - dantesan--sada--20022-09-22
 #
@@ -197,6 +200,7 @@ def get_fn():
 def get_lineno():
     cf = currentframe()
     return(cf.f_back.f_lineno)
+
 
 # enter text - dantesan--sada--20022-09-08
 #
@@ -237,6 +241,7 @@ def click_button(driver, find_by, element_lctr, new_text=None ):
         write_log("{0} - NoneTypeError XPATH: {1}".format(click_button.__name__, element_lctr))
 
     return button
+
 
 #
 # Function name: click_dropdown_item
@@ -285,6 +290,27 @@ def click_named_button(driver, button_name):
     return button
 
 
+# Verify Label exists. - dantesan--sada--20022-10-05
+# 
+# verify_span_label
+#
+# driver  - WebDriver
+# label_str - the label 
+#
+# returns the webelement 
+#
+#
+def verify_span_label(driver, label_str):
+    label_xpath = "//span[text() = '{0}']".format(label_str)
+
+    try:
+        label = wait_and_get_elem_by(driver, XPATH, label_xpath)
+    except:
+        write_log("{0} - NoneTypeError Label Name: {1}".format(verify_span_label.__name__, label_str))
+
+    return label
+
+
 # 
 # Click item menu that has no 'span'.
 #
@@ -304,7 +330,8 @@ def click_a_dropdown_item(driver, item_text):
     try:
         menu_item_we.click()
     except:
-        write_log("{0} - NoneTypeError Menu Item Name: {1}".format(click_a_dropdown_item.__name__, item_text))
+        write_log("{0} - NoneTypeError Menu Item Name: {1}"
+            .format(click_a_dropdown_item.__name__, item_text))
 
     return menu_item_we
 
@@ -321,11 +348,14 @@ def click_a_dropdown_item(driver, item_text):
 #
 def click_aria_label_icon(driver, aria_label):
     button_xpath = "//*[local-name()='svg' and @aria-label='{0}']".format(aria_label)
-    if(verify_element_visible(driver, XPATH, button_xpath)):
-        button = wait_and_get_elem_by(driver, XPATH, button_xpath)
-        if button is not None:
-           button.click()
-           return button
-    return
+    try:
+        icon_button = wait_and_get_elem_by(driver, XPATH, button_xpath)
+        icon_button.click()
+            
+    except:
+        write_log("{0} - NoneTypeError Icon with aria label: {1}"
+            .format(click_aria_label_icon.__name__, aria_label))
+
+    return icon_button
 
 #---------------------------------- END -------------------------------------
