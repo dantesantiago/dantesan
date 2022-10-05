@@ -17,6 +17,7 @@ from ..utils.selenium_utils import click_a_dropdown_item
 from ..utils.selenium_utils import click_aria_label_icon
 from ..utils.selenium_utils import verify_element_invisible
 from ..utils.selenium_utils import verify_element_visible
+from ..utils.selenium_utils import verify_span_label
 
 from ..utils.selenium_utils import ID
 from ..utils.selenium_utils import XPATH
@@ -43,6 +44,14 @@ MAX_NUM_CARDS_PER_PANEL = 10
 CLOSE = "close"
 
 MAX_NUM_FW_10_PRESSED = 19
+
+NO_MORE_CARDS_AFTER_CARD_1 = 2
+
+# for addind cards
+TEXTBOX_ID_NONE = "Card Id textbox is None."
+TEXTBOX_USERNM_NONE = "Card User Name textbox is None."
+TEXTBOX_PIN_NONE = "Card PIN textbox is None."
+RAC_LABEL = "Rack Access Control"
 
 #CONSTANTS
 
@@ -136,7 +145,9 @@ def print_rac_obj(o):
 # driver  - WebDriver
 # num_cards - can be None
 #
-# Returns : none
+# Returns : list with True, if there is no error
+#           [True/False, "Error Message", None]
+#         
 #
 # dantesan--2022-09-19 -add number of card arguments
 def create_card_data(driver, num_cards = None):
@@ -167,31 +178,60 @@ def create_card_data(driver, num_cards = None):
         #print(rac_obj_values)
                       
         # press Actions and select Add Card
-        click_named_button(driver, ACTIONS)
-        click_a_dropdown_item(driver, ADD_CARD)
-        enter_value(driver, CARD_ID, card_data.card_id())
-        enter_value(driver, USERNAME_ID, card_data.username())
-        enter_value(driver, CARD_PIN_ID, card_data.card_pin())
+        named_button = click_named_button(driver, ACTIONS)
+        if(named_button is None):
+            return [False, "{0} button is missing.".format(ACTION), None]
+
+        dropdown_item = click_a_dropdown_item(driver, ADD_CARD)
+        if(dropdown_item is None):
+            return [False, "{0} dropdown item is missing.".format(ADD_CARD), None]
+
+        textbox_id = enter_value(driver, CARD_ID, card_data.card_id())
+        if(textbox_id is None):
+            return [False, TEXTBOX_ID_NONE, None]
+
+        textbox_usernm = enter_value(driver, USERNAME_ID, card_data.username())      
+        if(textbox_usernm is None):
+            return [False, TEXTBOX_USERNM_NONE, None]
+
+        textbox_pin = enter_value(driver, CARD_PIN_ID, card_data.card_pin())
+        if(textbox_pin is None):
+            return [False, TEXTBOX_PIN_NONE, None]
+
         # press Save
-        click_named_button(driver, SAVE)
+        named_button = click_named_button(driver, SAVE)
+        if(named_button is None):
+           return [False, "{0} button is missing.".format(SAVE), None]
         time.sleep(1)
-        click_aria_label_icon(driver, CLOSE)
+
+        icon_button = click_aria_label_icon(driver, CLOSE)
+        if(icon_button is None):
+           return [False, "{0} icon button is missing.".format(CLOSE), None]
+
         write_log("{0} - card_id = {1} added.".
             format(create_card_data.__name__, card_num))
         time.sleep(5)
         # FW_10    
         if(c > page_num):
             page_num = page_num + MAX_NUM_CARDS_PER_PANEL
-            click_aria_label_icon(driver, FORWARD_TEN)    
-            write_log("{0} - Forward 10.".
-                format(create_card_data.__name__))
+            forward_ten(driver)
 
-    write_log("CARDS CREATED ... {0} ---------------------------------".
+    write_log("{1} CARDS CREATED ... {0} ---------------------------------".
         format(create_card_data.__name__, num_cards))
 
     # cards need to go back to 1st page
     driver.refresh()
+    write_log("REFRESH PAGE ... {0} ---------------------------------".
+        format(create_card_data.__name__))
     time.sleep(20) # 10 -> 20 ... more time for refresh ...
+    # make sure refresh is good!
+    rac_label = verify_span_label(driver, RAC_LABEL)
+    if(rac_label is not None):
+        return [True]
+    else:
+        return [False, "\'{0}\' label is missing.".format(RAC_LABEL), None] 
+    
+
 
     
 
@@ -206,11 +246,39 @@ def create_card_data(driver, num_cards = None):
 # Returns the textbox webelement. 
 #
 def enter_value(driver, textbox_id, new_text):
-    textbox = wait_and_get_elem_by(driver, ID, textbox_id)
-    textbox.click()
-    textbox.send_keys(Keys.HOME)
-    textbox.send_keys(new_text)
+    try:
+        textbox = wait_and_get_elem_by(driver, ID, textbox_id)
+        textbox.click()
+        textbox.send_keys(Keys.HOME)
+        textbox.send_keys(new_text)
+    except:
+        write_log("{0} NoneType Textbox: {1}.".
+            format(enter_value.__name__, textbox_id))
+
     return textbox
+
+
+# Forward 10. - dantesan--sada--20022-10-03
+#
+#   Press 'forward ten'. Copied from backward_10
+#       and modified.
+#
+# driver  - WebDriver
+#
+# Returns : none
+#
+def forward_ten(driver):
+    try:
+        #make sure 'forward ten' is shown!
+        if(verify_element_visible(driver, XPATH, FORWARD_TEN_LCTR)):
+            click_aria_label_icon(driver, FORWARD_TEN)  
+            write_log("{0} - FORward 10.".
+                format(forward_ten.__name__))
+    except:
+        write_log("{0} NoneType: FORward 10 is missing.".
+            format(forward_ten.__name__))
+                
+    return
 
 
 # Backward 10. - dantesan--sada--20022-09-22
@@ -223,11 +291,17 @@ def enter_value(driver, textbox_id, new_text):
 #
 def backward_ten(driver):
     while(verify_element_invisible(driver, XPATH, NO_CARD_MSG_LCTR) is not True):
-         #make sure 'back ten' is shown!
-        if(verify_element_visible(driver, XPATH, BACKWARD_TEN_LCTR)):
-            click_aria_label_icon(driver, BACKWARD_TEN)  
-            write_log("{0} - BACKward 10.".
+        
+        try:
+            #make sure 'back ten' is shown!
+            if(verify_element_visible(driver, XPATH, BACKWARD_TEN_LCTR)):
+                click_aria_label_icon(driver, BACKWARD_TEN)  
+                write_log("{0} - BACKward 10.".
+                    format(backward_ten.__name__))
+        except:
+            write_log("{0} NoneType: BACKward 10 is missing.".
                 format(backward_ten.__name__))
+
     return
 
 
@@ -241,9 +315,15 @@ def backward_ten(driver):
 # Returns : the card web elements and None if does/do not exist/s.
 #
 def get_card_wes(driver):
-    if(verify_element_visible(driver, XPATH, CARD_ID_LCTR)):
-        card_id_we = wait_and_get_elements_by(driver, XPATH, CARD_ID_LCTR)
+    try:
+        if(verify_element_visible(driver, XPATH, CARD_ID_LCTR)):
+            card_id_we = wait_and_get_elements_by(driver, XPATH, CARD_ID_LCTR)
         return card_id_we
+
+    except:
+        write_log("{0} - NoneType: Card ID web elements.".
+           format(get_card_wes.__name__))
+
     return None
 
 #  Forward ten or back ten. - dantesan--sada--20022-09-16
@@ -259,9 +339,11 @@ def check_cards(driver):
     no_cards = True
     fw_pressed = 0
     while(no_cards):    
-        click_aria_label_icon(driver, FORWARD_TEN)
-        write_log("{0} - FORward 10.".
-            format(check_cards.__name__))
+        forward_ten(driver)
+        time.sleep(5)
+        card_id_wes = get_card_wes(driver)
+        if(card_id_wes is not None):
+            break
         fw_pressed = fw_pressed + 1
         if(fw_pressed >= MAX_NUM_FW_10_PRESSED):
             break
@@ -270,11 +352,11 @@ def check_cards(driver):
         if(verify_element_visible(driver, XPATH, NO_CARD_MSG_LCTR)):
             write_log("{0} - NO_CARD_MSG_REACHED.".
                 format(check_cards.__name__))
+            backward_ten(driver) 
+            card_id_wes = get_card_wes(driver)
             break
     
-    backward_ten(driver) 
-    
-    return
+    return card_id_wes
 
 
 #  Delete Cards with DND list - dantesan--sada--20022-09-16
@@ -305,21 +387,22 @@ def delete_cards_with_dnd_list(driver, dont_delete_list):
         
         # no card id - check if
         if card_id == "":
-            check_cards(driver)
-            card_id_wes = get_card_wes(driver)
+            card_id_wes = check_cards(driver)
             if(card_id_wes is None):
                 return True
             num_cards = len(card_id_wes)
-            dnd_len = len(dont_delete_list)
-            if(num_cards == (dnd_len + 1)):
-                break
-            else:
-                n = INDEX_START
-                continue
+            n = INDEX_START
+            continue
 
         #do not delete =- 1st card now!
-        if(card_id in dont_delete_list):
+        if(card_id in dont_delete_list and not first_page_checked):
             first_page_checked = True
+            n = n + 1
+            continue
+        elif(card_id in dont_delete_list and 
+                num_cards <= NO_MORE_CARDS_AFTER_CARD_1):
+            break
+        elif(card_id in dont_delete_list):
             n = n + 1
             continue
 
@@ -336,6 +419,8 @@ def delete_cards_with_dnd_list(driver, dont_delete_list):
         time.sleep(5)
         card_id_wes = get_card_wes(driver)
         if(card_id_wes is None):
+           return True
+        if(card_id_wes is None): # check later if still needed!
             while(True):
                 backward_ten(driver)
                 card_id_wes = get_card_wes(driver)
