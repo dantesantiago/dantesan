@@ -163,7 +163,7 @@ def verify_element_invisible(driver, find_by, element_by):
 
     invisible = True
     try:
-       WebDriverWait(driver, 3).until(EC.invisibility_of_element_located((find_by, element_by)))
+       WebDriverWait(driver, 5).until(EC.invisibility_of_element_located((find_by, element_by)))
     except:
         invisible = False
 
