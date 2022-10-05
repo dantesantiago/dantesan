@@ -90,6 +90,20 @@ def set_panel_to_RAC():
     time.sleep(2)
 
 
+# Close Chrome. - dantesan--sada--2022-10-05
+#   
+#
+# close_Chrome
+#
+# the driver
+#
+# returns - None
+#
+def close_Chrome(driver):
+    driver.quit()
+    write_log("END: {0} - Chromedriver quits.".format(__name__))
+
+
 if __name__ == "__main__":
 
 
@@ -149,8 +163,11 @@ if __name__ == "__main__":
     set_panel_to_RAC()
 
     # Add Cards
-    create_card_data(driver, num_cards)
-    #driver.refresh()
+    rtn_list = create_card_data(driver, num_cards)
+    if (rtn_list[0] is False):
+        write_log("{0} - ERROR in create_card_data() : {1}"
+            .format(__name__, rtn_list[1]))
+        close_Chrome(driver)
 
     # Settings -> Rack Access Control
     set_panel_to_RAC()
@@ -172,6 +189,7 @@ if __name__ == "__main__":
     write_log("{0} - Log Out clicked.".format(__name__))
     time.sleep(5)
 
-    driver.quit()
-    write_log("END: {0} - Chromedriver quits.".format(__name__))
+    close_Chrome(driver)
+
+
 #----------------------------------- END --------------------------------
