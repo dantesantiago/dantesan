@@ -47,6 +47,8 @@ MAX_NUM_FW_10_PRESSED = 19
 
 NO_MORE_CARDS_AFTER_CARD_1 = 2
 
+MAX_FIRST_PAGE_CHECK = 2
+
 # for addind cards
 TEXTBOX_ID_NONE = "Card Id textbox is None."
 TEXTBOX_USERNM_NONE = "Card User Name textbox is None."
@@ -379,7 +381,8 @@ def delete_cards_with_dnd_list(driver, dont_delete_list):
     num_cards = len(card_id_wes)
     n = INDEX_START
     # var indicator if 1st page is passed
-    first_page_checked = False
+    first_page_checked = 0
+
     write_log("DELETE_CARDS ------------------------------------------".
         format(delete_cards_with_dnd_list.__name__))
     while(num_cards > 0):
@@ -395,13 +398,18 @@ def delete_cards_with_dnd_list(driver, dont_delete_list):
             continue
 
         #do not delete =- 1st card now!
-        if(card_id in dont_delete_list and not first_page_checked):
-            first_page_checked = True
+        if(card_id in dont_delete_list and first_page_checked == 0):
+            first_page_checked = first_page_checked + 1
             n = n + 1
             continue
         elif(card_id in dont_delete_list and 
                 num_cards <= NO_MORE_CARDS_AFTER_CARD_1):
-            break
+            if(first_page_checked == MAX_FIRST_PAGE_CHECK - 1):
+                first_page_checked = first_page_checked + 1
+                n = n + 1
+                continue
+            else:    
+              break
         elif(card_id in dont_delete_list):
             n = n + 1
             continue
