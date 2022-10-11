@@ -17,9 +17,10 @@ from pdu_py_sel.utils.selenium_utils import enter_text
 from pdu_py_sel.utils.selenium_utils import click_button
 from pdu_py_sel.utils.selenium_utils import check_xpath_exists
 from pdu_py_sel.utils.selenium_utils import click_dropdown_item
+from pdu_py_sel.utils.selenium_utils import close_Chrome
+from pdu_py_sel.utils.selenium_utils import click_svg_icon
 
 from pdu_py_sel.page_objects.pdu_summary_wp import click_username
-from pdu_py_sel.page_objects.pdu_summary_wp import click_svg_icon
 
 from pdu_py_sel.page_objects.pdu_summary_wp import CHANGE_PASSWORD
 from pdu_py_sel.page_objects.pdu_summary_wp import USER_ACCOUNTS
@@ -87,22 +88,8 @@ def set_panel_to_RAC():
     
     # click Rack Access Control
     rac_we = click_dropdown_item(driver, RACK_ACCESS_CONTROL)
+    write_log("{0} - Open Rack Access Control Panel.".format(set_panel_to_RAC.__name__))
     time.sleep(2)
-
-
-# Close Chrome. - dantesan--sada--2022-10-05
-#   
-#
-# close_Chrome
-#
-# the driver
-#
-# returns - None
-#
-def close_Chrome(driver):
-    driver.quit()
-    write_log("END: {0} - Chromedriver quits.".format(__name__))
-    sys.exit()
 
 
 if __name__ == "__main__":
