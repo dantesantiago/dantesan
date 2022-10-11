@@ -66,23 +66,4 @@ def click_username(driver, username):
     return username_bttn
 
 
-
-#
-# Function name: click_svg_icon
-#
-# Click the icons or svgs given the aria-label.
-#
-# dantesan--sada--20022-09-13 
-#
-# driver  - WebDriver
-# aria_label - the aria label
-#
-# returns the svg webelement
-#  
-def click_svg_icon(driver, aria_label):
-    svg_icon_xpath = "//*[local-name()='svg' and @aria-label = '{0}']".format(aria_label)
-    #svg_icon_we = wait_and_get_elem_by(driver, XPATH, svg_icon_xpath)
-    svg_icon_we = click_button(driver, XPATH, svg_icon_xpath)
-    return svg_icon_we
-
 #---------------------------------- END -------------------------------------
