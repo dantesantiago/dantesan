@@ -29,13 +29,15 @@ LOG_FULLPATH = "{0}/{1}".format(LOG_DIR, LOG_FN)
 # #FROM_COMPLIANCE_PROJECT -VM114:$CYGD/C/TFC/analyze_color_CCfE.py 
 
 # dantesan--2022-07-06 - so that other log files can be used ... logFn=None
-def write_log(msg, logFn=None):
+#def write_log(msg, logFn=None):
+
+# dantesa--sada--2022-10-10 - Use print_to_screen = True to print log to run window.
+def write_log(msg, logFn = None, print_to_screen=None):
     if logFn is None:
         if(not os.path.exists(LOG_DIR)):
            os.mkdir(LOG_DIR, mode = 0o777)
         logFn = LOG_FULLPATH
         
-
     # dantesan--sada--2022-07-08 - check if log file exists!
     if os.path.exists(logFn):
         check_and_truncate_log_file(logFn)
@@ -62,6 +64,11 @@ def write_log(msg, logFn=None):
 
     log_out.writelines(msgLn)
     log_out.close()
+
+    # check if print_to_screen
+    if(print_to_screen):
+        print(msg)
+        
     return
 
 
