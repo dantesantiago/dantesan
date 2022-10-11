@@ -72,6 +72,8 @@ def wait_and_get_elem_by(driver, find_by, element_by, dont_wait = None):
         try:
             WebDriverWait(driver, 30).until(EC.visibility_of_element_located((find_by, element_by)))
         except:
+            write_log("{0} - NoneTypeError FIND_BY: {1}, LOCATOR: {2}"
+                .format(wait_and_get_elem_by.__name__, find_by, element_by))
             return None
 
     if find_by == By.ID:
@@ -125,6 +127,8 @@ def wait_and_get_elements_by(driver, find_by, element_by, dont_wait = None):
         try:
             WebDriverWait(driver,30).until(EC.visibility_of_element_located((find_by, element_by)))
         except:
+            write_log("{0} - NoneTypeError FIND_BY: {1}, LOCATOR: {2}"
+                .format(wait_and_get_elements_by.__name__, find_by, element_by))
             return None
 
     if find_by == By.ID:
@@ -165,6 +169,8 @@ def verify_element_invisible(driver, find_by, element_by):
     try:
        WebDriverWait(driver, 5).until(EC.invisibility_of_element_located((find_by, element_by)))
     except:
+        write_log("{0} - Invisiblity check failed! FIND_BY: {1}, LOCATOR: {2}"
+           .format(verify_element_invisible.__name__, find_by, element_by))
         invisible = False
 
     return invisible
@@ -186,6 +192,8 @@ def verify_element_visible(driver, find_by, element_by):
     try:
        WebDriverWait(driver, 3).until(EC.visibility_of_element_located((find_by, element_by)))
     except:
+        write_log("{0} - Visiblity check failed! FIND_BY: {1}, LOCATOR: {2}"
+           .format(verify_element_invisible.__name__, find_by, element_by))
         visible = False
 
     return visible
@@ -215,9 +223,12 @@ def get_lineno():
 #
 def enter_text(driver, find_by, element_lctr, new_text):
     textbox = wait_and_get_elem_by(driver, find_by, element_lctr)
-    textbox.click()
-    textbox.send_keys(Keys.HOME)
-    textbox.send_keys(new_text)
+    try:
+        textbox.click()
+        textbox.send_keys(Keys.HOME)
+        textbox.send_keys(new_text)
+    except:
+        write_log("{0} - NoneTypeError XPATH: {1}".format(enter_text.__name__, element_lctr))
     return textbox
 
 
@@ -357,5 +368,43 @@ def click_aria_label_icon(driver, aria_label):
             .format(click_aria_label_icon.__name__, aria_label))
 
     return icon_button
+
+
+# Close Chrome. - dantesan--sada--2022-10-05
+#   
+# - moved from rack_access_control_test.py ...
+# close_Chrome
+#
+# the driver
+#
+# returns - None
+#
+def close_Chrome(driver):
+    driver.quit()
+    write_log("END: {0} - Chromedriver quits.".format(__name__))
+    sys.exit()
+
+
+# Function name: click_svg_icon
+#
+# Click the icons or svgs given the aria-label.
+#
+# dantesan--sada--20022-09-13 
+#
+# driver  - WebDriver
+# aria_label - the aria label
+#
+# returns the svg webelement
+#  
+def click_svg_icon(driver, aria_label):
+    svg_icon_xpath = "//*[local-name()='svg' and @aria-label = '{0}']".format(aria_label)
+    #svg_icon_we = wait_and_get_elem_by(driver, XPATH, svg_icon_xpath)
+    try:
+        svg_icon_we = click_button(driver, XPATH, svg_icon_xpath)
+    except:
+         write_log("{0} - NoneTypeError SVG Icon with aria label: {1}"
+             .format(click_svg_icon.__name__, aria_label))
+    return svg_icon_we
+
 
 #---------------------------------- END -------------------------------------
