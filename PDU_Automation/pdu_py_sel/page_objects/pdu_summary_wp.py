@@ -7,15 +7,15 @@ import time
 #file_dir = os.path.dirname("../utils")
 #sys.path.append(file_dir)
 
-from ..utils import selenium_utils
+#from ..utils import selenium_utils
 
-from ..utils.selenium_utils import wait_and_get_elem_by
-from ..utils.selenium_utils import enter_text
-from ..utils.selenium_utils import click_button
+#from ..utils.selenium_utils import wait_and_get_elem_by
+#from ..utils.selenium_utils import enter_text
+#from ..utils.selenium_utils import click_button
 
-from ..utils.selenium_utils import ID
-from ..utils.selenium_utils import XPATH
-from ..utils.selenium_utils import NAME
+#from ..utils.selenium_utils import ID
+#from ..utils.selenium_utils import XPATH
+#from ..utils.selenium_utils import NAME
 
 # CONSTANTS
 
@@ -48,22 +48,7 @@ AL_SETTINGS = 'settings-option'
 # LOCATORS
 
 
-#
-# Function name: click_username
-# 
-# Click the username button.
-#
-# dantesan--sada--20022-09-09 
-#
-# driver  - WebDriver
-# username - PDU_WEBPAGE_CLASS_OBJ.username()
-#
-# returns the username button or webelement
-#  
-def click_username(driver, username):
-    username_xpath = "//button/span[text() = '{0}']".format(username)
-    username_bttn = click_button(driver, XPATH, username_xpath)
-    return username_bttn
+
 
 
 #---------------------------------- END -------------------------------------
