@@ -20,8 +20,8 @@ from pdu_py_sel.utils.selenium_utils import click_dropdown_item
 from pdu_py_sel.utils.selenium_utils import close_Chrome
 from pdu_py_sel.utils.selenium_utils import verify_span_label
 from pdu_py_sel.utils.selenium_utils import click_svg_icon
-
-from pdu_py_sel.page_objects.pdu_summary_wp import click_username
+from pdu_py_sel.utils.selenium_utils import login_pdu
+from pdu_py_sel.utils.selenium_utils import logout_pdu
 
 from pdu_py_sel.page_objects.pdu_summary_wp import CHANGE_PASSWORD
 from pdu_py_sel.page_objects.pdu_summary_wp import USER_ACCOUNTS
@@ -48,13 +48,6 @@ import pdu_py_sel.utils.automation_utils
 from pdu_py_sel.utils.automation_utils import write_log
 from pdu_py_sel.utils.automation_utils import debug_func
 
-from pdu_py_sel.utils.automation_utils import CONTINUE_MSG
-from pdu_py_sel.utils.automation_utils import MONITORED_LCTR
-from pdu_py_sel.utils.automation_utils import USERNAME_ID_LCTR
-from pdu_py_sel.utils.automation_utils import PASSWORD_ID_LCTR
-from pdu_py_sel.utils.automation_utils import LOGIN_BTTN_LCTR
-from pdu_py_sel.utils.automation_utils import CONTINUE_MSG_LCTR
-from pdu_py_sel.utils.automation_utils import CONTINUE_MSG_OK_LCTR
 
 #CONSTANTS
 
@@ -65,9 +58,12 @@ SETTINGS_MENU_ITEMS = [ "Network Settings",
                         "Event Notification",
                         "Event & Alarm Customization",
                         "Trap Receiver",
-                        "Thresholds",
+                        "Thresholds",      
                         "Rack Access Control" ]
                         
+DIFF_WINDOW_NAMES = [ "SNMP Management",
+                      "Event Customization" ]
+
 #CONSTANTS
 
 # LOCATORS
@@ -120,56 +116,20 @@ def set_panel_to_settings_item(driver):
 
 if __name__ == "__main__":
 
-    #pdu_webpage_class = pdu_webpage_class.PDU_WEBPAGE_CLASS()    #Will work, but better to be explicit. Did not work!
-    ip_addr = PDU_WEBPAGE_CLASS.IP_ADDRESS
-    usrnm = PDU_WEBPAGE_CLASS.USERNAME
-    passwd = PDU_WEBPAGE_CLASS.PASSWD
-    wp_str = PDU_WEBPAGE_CLASS.WEBPAGE_STRING
-
-    pdu_wp_obj = PDU_WEBPAGE_CLASS(ip_address = ip_addr, username = usrnm, 
-                                    password = passwd, webpage_string = wp_str)
-
-    write_log("START: {0} - open PDU webpage.".format(__name__))
-    open_webpage(driver, pdu_wp_obj)
-
-    # Verify PDU webpage
-    mon_and_switched_per_outlet = wait_and_get_elem_by(driver, By.XPATH, MONITORED_LCTR)
-    assert(pdu_wp_obj.webpage_string() == mon_and_switched_per_outlet.text)
-
-    username = enter_text(driver, By.ID, 
-                           USERNAME_ID_LCTR, pdu_wp_obj.username())
-    
-    password = enter_text(driver, By.ID, 
-                           PASSWORD_ID_LCTR, pdu_wp_obj.password())
-
-    write_log("{0} - Press Login button.".format(__name__))
-    login_bttn = click_button(driver, By.XPATH, LOGIN_BTTN_LCTR)
+    login_pdu(driver)
 
     time.sleep(5)
-
-    # dantesan-sada--2022-09-13 - check if CONTINUE_MSG appears.
-    if check_xpath_exists(driver, CONTINUE_MSG_LCTR):
-        click_button(driver, By.XPATH, CONTINUE_MSG_OK_LCTR)
-        write_log("{0} - CONTINUE_MSG_OK pressed.".format(__name__))
 
     # Settings -> Menu Items
     rtn_lst = set_panel_to_settings_item(driver)
     if(rtn_lst[0] is False):
         write_log("{0} - {1}".format(__name__, rtn_lst[1]), None, True)
-        write_log("{0} - Error in verifying Settings menu item windows.".format(__name__), None, True)
+        write_log("{0} - Error in verifying Settings menu item windows."
+            .format(__name__), None, True)
         close_Chrome(driver)
 
-    # LOGOUT
-    # press username menu
-    username_bttn = click_username(driver, usrnm)
-    write_log("{0} - username pressed.".format(__name__))
-
     # logout
-    log_out_we = click_dropdown_item(driver, LOG_OUT)
-    write_log("{0} - Log Out clicked.".format(__name__))
-    time.sleep(5)
-
-    close_Chrome(driver)
+    logout_pdu(driver)
 
 
 #----------------------------------- END --------------------------------
