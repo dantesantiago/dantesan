@@ -20,8 +20,23 @@ sys.path.append(file_dir)
 import pdu_webpage_class
 from pdu_webpage_class import PDU_WEBPAGE_CLASS
 
+
+from ..page_objects.pdu_summary_wp import CHANGE_PASSWORD
+from ..page_objects.pdu_summary_wp import USER_ACCOUNTS
+# show this is another way to import
+from pdu_py_sel.page_objects.pdu_summary_wp import LOG_OUT 
+
 from automation_utils import write_log
 from automation_utils import debug_func
+
+import automation_utils
+from automation_utils import CONTINUE_MSG
+from automation_utils import MONITORED_LCTR
+from automation_utils import USERNAME_ID_LCTR
+from automation_utils import PASSWORD_ID_LCTR
+from automation_utils import LOGIN_BTTN_LCTR
+from automation_utils import CONTINUE_MSG_LCTR
+from automation_utils import CONTINUE_MSG_OK_LCTR
 
 
 ID = "id"
@@ -405,6 +420,106 @@ def click_svg_icon(driver, aria_label):
          write_log("{0} - NoneTypeError SVG Icon with aria label: {1}"
              .format(click_svg_icon.__name__, aria_label))
     return svg_icon_we
+
+
+# Function name: login_pdu()
+#
+# Log in to the PDU webpage.
+#
+# dantesan--sada--20022-10-06   
+#  - from open_log_io_pdu.py (not used) 
+#
+# driver  - WebDriver
+#
+#  
+def login_pdu(driver):
+    #pdu_webpage_class = pdu_webpage_class.PDU_WEBPAGE_CLASS()    #Will work, but better to be explicit. Did not work!
+    ip_addr = PDU_WEBPAGE_CLASS.IP_ADDRESS
+    usrnm = PDU_WEBPAGE_CLASS.USERNAME
+    passwd = PDU_WEBPAGE_CLASS.PASSWD
+    wp_str = PDU_WEBPAGE_CLASS.WEBPAGE_STRING
+
+    pdu_wp_obj = PDU_WEBPAGE_CLASS(ip_address = ip_addr, username = usrnm, 
+                                    password = passwd, webpage_string = wp_str)
+
+    write_log("START: {0} - open PDU webpage.".format(login_pdu.__name__))
+    open_webpage(driver, pdu_wp_obj)
+
+    # Verify PDU webpage
+    mon_and_switched_per_outlet = wait_and_get_elem_by(driver, By.XPATH, MONITORED_LCTR)
+    assert(pdu_wp_obj.webpage_string() == mon_and_switched_per_outlet.text)
+
+    username = enter_text(driver, By.ID, 
+                           USERNAME_ID_LCTR, pdu_wp_obj.username())
+    
+    password = enter_text(driver, By.ID, 
+                           PASSWORD_ID_LCTR, pdu_wp_obj.password())
+
+    write_log("{0} - Press Login button.".format(login_pdu.__name__))
+    login_bttn = click_button(driver, By.XPATH, LOGIN_BTTN_LCTR)
+
+    time.sleep(5)
+
+    # dantesan-sada--2022-09-13 - check if CONTINUE_MSG appears.
+    if check_xpath_exists(driver, CONTINUE_MSG_LCTR):
+        click_button(driver, By.XPATH, CONTINUE_MSG_OK_LCTR)
+        write_log("{0} - CONTINUE_MSG_OK pressed.".format(login_pdu.__name__))
+
+    time.sleep(5)
+
+
+# Function name: logout_pdu()
+#
+# Log out of the PDU webpage.
+#
+# dantesan--sada--20022-10-06   
+#  - from open_log_io_pdu.py (not used) 
+#
+# driver  - WebDriver
+#
+# 
+def logout_pdu(driver):
+
+    try:
+        usrnm = PDU_WEBPAGE_CLASS.USERNAME
+        # press username menu
+        username_bttn = click_username(driver, usrnm)
+        write_log("{0} - username pressed.".format(logout_pdu.__name__))
+
+    except:
+        write_log("{0} - Username is not found.".format(logout_pdu.__name__))
+
+    try:
+        # logout
+        log_out_we = click_dropdown_item(driver, LOG_OUT)
+        write_log("{0} - Log Out clicked.".format(logout_pdu.__name__))
+
+    except:
+        write_log("{0} - Log Out is not found.".format(logout_pdu.__name__))
+        
+    
+    time.sleep(5)
+
+    close_Chrome(driver)
+
+
+# Function name: click_username
+# 
+# Click the username button.
+#
+# dantesan--sada--20022-09-09 
+#
+# driver  - WebDriver
+# username - PDU_WEBPAGE_CLASS_OBJ.username()
+#
+# returns the username button or webelement
+#
+# DT221012 - Moved from pdu_summary_wp.py.
+#  
+def click_username(driver, username):
+    username_xpath = "//button/span[text() = '{0}']".format(username)
+    username_bttn = click_button(driver, XPATH, username_xpath)
+    return username_bttn
 
 
 #---------------------------------- END -------------------------------------
