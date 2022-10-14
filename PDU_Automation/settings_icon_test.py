@@ -6,16 +6,8 @@ import time
 import sys
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 
 #import pdu_py_sel.utils.selenium_utils
-from pdu_py_sel.utils.selenium_utils import open_webpage
-from pdu_py_sel.utils.selenium_utils import wait_and_get_elem_by
-from pdu_py_sel.utils.selenium_utils import enter_text
-from pdu_py_sel.utils.selenium_utils import click_button
-from pdu_py_sel.utils.selenium_utils import check_xpath_exists
 from pdu_py_sel.utils.selenium_utils import click_dropdown_item
 from pdu_py_sel.utils.selenium_utils import close_Chrome
 from pdu_py_sel.utils.selenium_utils import verify_span_label
@@ -23,16 +15,13 @@ from pdu_py_sel.utils.selenium_utils import click_svg_icon
 from pdu_py_sel.utils.selenium_utils import login_pdu
 from pdu_py_sel.utils.selenium_utils import logout_pdu
 
-from pdu_py_sel.page_objects.pdu_summary_wp import CHANGE_PASSWORD
-from pdu_py_sel.page_objects.pdu_summary_wp import USER_ACCOUNTS
-from pdu_py_sel.page_objects.pdu_summary_wp import LOG_OUT
-
 from pdu_py_sel.page_objects.pdu_summary_wp import AL_SETTINGS
 from pdu_py_sel.page_objects.pdu_summary_wp import RACK_ACCESS_CONTROL
 
 
 #import pdu_py_sel.utils.pdu_webpage_class 
-from pdu_py_sel.utils.pdu_webpage_class import PDU_WEBPAGE_CLASS
+#from pdu_py_sel.utils.pdu_webpage_class import PDU_WEBPAGE_CLASS
+from pdu_py_sel.utils.pdu_webpage_class import chrome_options
 
 #import pdu_py_sel.page_objects.rack_access_control_pobj
 from pdu_py_sel.page_objects.rack_access_control_pobj import RAC_CLASS
@@ -55,26 +44,25 @@ SETTINGS_MENU_ITEMS = [ "Network Settings",
                         "System Management",
                         "SNMP Manager",
                         "Email Setup",
-                        "Event Notification",
+                        "Event Notifications",
                         "Event & Alarm Customization",
                         "Trap Receiver",
                         "Thresholds",      
                         "Rack Access Control" ]
                         
-DIFF_WINDOW_NAMES = [ "SNMP Management",
-                      "Event Customization" ]
+WINDOW_TITLE_NAMES = [ "Network Settings",
+                        "System Management",
+                        "SNMP Management",
+                        "Email Setup",
+                        "Event Notifications",
+                        "Event Customization" ,
+                        "Trap Receiver",
+                        "PDU Thresholds",      
+                        "Rack Access Control"]
 
 #CONSTANTS
 
-# LOCATORS
-
-
 #driver = webdriver.Firefox()
-
-chrome_options = Options()
-#chrome_options.add_argument("--disable-extensions")
-chrome_options.add_argument('ignore-certificate-errors')
-chrome_options.add_argument("--start-maximized")
 driver = webdriver.Chrome(options=chrome_options)
 
 
@@ -93,6 +81,7 @@ def get_driver():
 #
 def set_panel_to_settings_item(driver):
 
+    item_name_pos = 0
     # select Settings
     for menu_item in SETTINGS_MENU_ITEMS:
         write_log("{0} - Press \"{1}\" icon."
@@ -104,13 +93,30 @@ def set_panel_to_settings_item(driver):
         imenu_item_we  = click_dropdown_item(driver, menu_item)
         time.sleep(2)
         panel_label = verify_span_label(driver, menu_item)
+        
         if(panel_label is None):
-            err_msg = "Window or panel \"{0}\" label is not found.".format(menu_item)
-            write_log("{0} - {1}".format(set_panel_to_settings_item.__name__, err_msg))
-            return [False, err_msg]
+            warn_msg = "WARNING! Window or panel "
+            warn_msg = warn_msg + "\"{0}\" label is not found." .format(menu_item)
+            write_log("{0} - {1}"
+                .format(set_panel_to_settings_item.__name__, warn_msg))
+            win_title = verify_span_label(driver, WINDOW_TITLE_NAMES[item_name_pos])
+            if(win_title is not None):
+                write_log("{0} - Window Name is \"{1}\" and not \"{2}\"."
+                    .format(set_panel_to_settings_item.__name__, 
+                        WINDOW_TITLE_NAMES[item_name_pos], menu_item))
+            else:    
+                err_msg = "ERROR: Correct window title "
+                err_msg = err_msg +  "\"{0}\" ".format(WINDOW_TITLE_NAMES[item_name_pos])
+                err_msg = err_msg + "not found. The wrong window may have been opened!"
+                write_log("{0} - {1}"
+                    .format(set_panel_to_settings_item.__name__, err_msg))
+                return [False, err_msg]
+    
 
         write_log("{0} - Verified \"{1}\" panel or webpage opened."
             .format(set_panel_to_settings_item.__name__, menu_item))
+        item_name_pos = item_name_pos + 1
+        
     return [True, "NO error."]
 
 
@@ -125,7 +131,7 @@ if __name__ == "__main__":
     if(rtn_lst[0] is False):
         write_log("{0} - {1}".format(__name__, rtn_lst[1]), None, True)
         write_log("{0} - Error in verifying Settings menu item windows."
-            .format(__name__), None, True)
+            .format(__name__), None, True)   
         close_Chrome(driver)
 
     # logout
