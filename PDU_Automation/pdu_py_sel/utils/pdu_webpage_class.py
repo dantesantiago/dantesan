@@ -2,6 +2,12 @@
 #      - PDU Webpage : Selenium python utilities
 #      - by dantesan-sada--2022-09-02
 
+
+#from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+
+
 class PDU_WEBPAGE_CLASS:
     def __init__(self, **kwargs):
         self._ip_address = \
@@ -47,6 +53,13 @@ def print_pdu_webpage_class(o):
     return ('{},{},{},{},{} - {}'.format(o.username(), o.password()," "," ", 
             o.cellColor(), o.webpage_string()))
 
+
+
+
+chrome_options = Options()
+#chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument('ignore-certificate-errors')
+chrome_options.add_argument("--start-maximized")
 
     
 
