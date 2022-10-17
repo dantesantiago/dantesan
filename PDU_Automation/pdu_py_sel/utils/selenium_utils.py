@@ -184,7 +184,7 @@ def verify_element_invisible(driver, find_by, element_by):
     try:
        WebDriverWait(driver, 5).until(EC.invisibility_of_element_located((find_by, element_by)))
     except:
-        write_log("{0} - Invisiblity check failed! FIND_BY: {1}, LOCATOR: {2}"
+        write_log("{0} - Invisibility check failed! FIND_BY: {1}, LOCATOR: {2}"
            .format(verify_element_invisible.__name__, find_by, element_by))
         invisible = False
 
@@ -207,8 +207,8 @@ def verify_element_visible(driver, find_by, element_by):
     try:
        WebDriverWait(driver, 3).until(EC.visibility_of_element_located((find_by, element_by)))
     except:
-        write_log("{0} - Visiblity check failed! FIND_BY: {1}, LOCATOR: {2}"
-           .format(verify_element_invisible.__name__, find_by, element_by))
+        write_log("{0} - Visibility check failed! FIND_BY: {1}, LOCATOR: {2}"
+           .format(verify_element_visible.__name__, find_by, element_by))
         visible = False
 
     return visible
@@ -520,6 +520,76 @@ def click_username(driver, username):
     username_xpath = "//button/span[text() = '{0}']".format(username)
     username_bttn = click_button(driver, XPATH, username_xpath)
     return username_bttn
+
+
+# Function name: set_panel_to_icon_item()
+#
+# Select the given Icon menu items.
+#  - Copied and modified from set_panel_to_settings_item()
+#    from settings_icon_test.py.
+#
+# driver - Webdriver
+#
+# returns - [True, "NO error."] if there is no error
+#           [False, "Error that happened."] if there is error
+#
+def set_panel_to_icon_item(driver, icon_name, icon_menu_items, window_titles):
+
+    item_name_pos = 0
+    # select Settings
+    for menu_item in icon_menu_items:
+        write_log("{0} - Press \"{1}\" icon."
+            .format(set_panel_to_icon_item.__name__, icon_name))
+        click_svg_icon(driver, icon_name)
+        time.sleep(2)
+        write_log("{0} - Press \"{1}\" menu item."
+            .format(set_panel_to_icon_item.__name__, menu_item))
+        imenu_item_we  = click_dropdown_item(driver, menu_item)
+        time.sleep(2)
+        panel_label = verify_span_label(driver, menu_item)
+        
+        if(panel_label is None):
+            warn_msg = "WARNING! Window or panel "
+            warn_msg = warn_msg + "\"{0}\" label is not found." .format(menu_item)
+            write_log("{0} - {1}"
+                .format(set_panel_to_icon_item.__name__, warn_msg))
+
+            title_ok = False 
+            title_nf = ""   
+            if(isinstance(window_titles[item_name_pos], list)):
+                for title in window_titles[item_name_pos]:
+                    win_title = verify_span_label(driver, title)  
+                    if(win_title is not None):
+                        title_ok = True 
+                    else:
+                        title_ok = False
+                        title_nf = title
+                        break                   
+            else:         
+                win_title = verify_span_label(driver, window_titles[item_name_pos])
+                if(win_title is not None):
+                    title_ok = True
+                else:
+                    title_nf = window_titles[item_name_pos]
+
+            if(title_ok):
+                write_log("{0} - Window Name is not \"{1}\"."
+                    .format(set_panel_to_icon_item.__name__, 
+                         menu_item))
+            else:    
+                err_msg = "ERROR: Correct window title "
+                err_msg = err_msg +  "\"{0}\" ".format(title_nf)
+                err_msg = err_msg + "not found. The wrong window may have been opened!"
+                write_log("{0} - {1}"
+                    .format(set_panel_to_icon_item.__name__, err_msg))
+                return [False, err_msg]
+    
+
+        write_log("{0} - Verified \"{1}\" panel or webpage opened."
+            .format(set_panel_to_icon_item.__name__, menu_item))
+        item_name_pos = item_name_pos + 1
+        
+    return [True, "NO error."]
 
 
 #---------------------------------- END -------------------------------------
