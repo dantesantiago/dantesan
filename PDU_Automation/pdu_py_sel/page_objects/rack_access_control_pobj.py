@@ -206,7 +206,7 @@ def create_card_data(driver, num_cards = None):
         named_button = click_named_button(driver, SAVE)
         if(named_button is None):
            return [False, "{0} button is missing.".format(SAVE), None]
-        time.sleep(1)
+        time.sleep(5)
 
         # do not press Close 
         #icon_button = click_aria_label_icon(driver, CLOSE)
@@ -220,9 +220,9 @@ def create_card_data(driver, num_cards = None):
             format(create_card_data.__name__, card_num))
         time.sleep(5)
         # FW_10    
-        if(c > page_num):
-            page_num = page_num + MAX_NUM_CARDS_PER_PANEL
-            forward_ten(driver)
+        #if(c > page_num):
+        #    page_num = page_num + MAX_NUM_CARDS_PER_PANEL
+        #    forward_ten(driver)
 
     write_log("{1} CARDS CREATED ... {0} ---------------------------------".
         format(create_card_data.__name__, num_cards))
@@ -298,8 +298,7 @@ def forward_ten(driver):
 # Returns : none
 #
 def backward_ten(driver):
-    while(verify_element_invisible(driver, XPATH, NO_CARD_MSG_LCTR) is not True):
-        
+    while(verify_element_visible(driver, XPATH, NO_CARD_MSG_LCTR)):
         try:
             #make sure 'back ten' is shown!
             if(verify_element_visible(driver, XPATH, BACKWARD_TEN_LCTR)):
@@ -343,7 +342,7 @@ def get_card_wes(driver):
 # driver  - WebDriver
 # close_xpath - 
 #
-# Returns : True if inotice is not visible. anymore.
+# Returns : True if notice is not visible. anymore.
 #
 def verify_notice_closed(driver, close_xpath):
     while(verify_element_invisible(driver, XPATH, close_xpath) is not True):
@@ -442,8 +441,12 @@ def delete_cards_with_dnd_list(driver, dont_delete_list):
         trash_icon.click()
         #driver.refresh()
         # avoid StaleElementReferenceException 
-        time.sleep(3)
-        click_aria_label_icon(driver, CLOSE)
+        time.sleep(5)
+
+        # do not press arla-label = 'close' or X mark in notice
+        #click_aria_label_icon(driver, CLOSE)
+        verify_notice_closed(driver, ARIA_CLOSE_LCTR)
+
         write_log("{0} - card_id = {1} DELETED.".
             format(delete_cards_with_dnd_list.__name__, card_id))
         # add sleep for the webpage to be able to update.
