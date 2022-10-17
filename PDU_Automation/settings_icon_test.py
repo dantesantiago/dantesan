@@ -16,8 +16,6 @@ from pdu_py_sel.utils.selenium_utils import login_pdu
 from pdu_py_sel.utils.selenium_utils import logout_pdu
 
 from pdu_py_sel.page_objects.pdu_summary_wp import AL_SETTINGS
-from pdu_py_sel.page_objects.pdu_summary_wp import RACK_ACCESS_CONTROL
-
 
 #import pdu_py_sel.utils.pdu_webpage_class 
 #from pdu_py_sel.utils.pdu_webpage_class import PDU_WEBPAGE_CLASS
