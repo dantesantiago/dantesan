@@ -480,14 +480,11 @@ def login_pdu(driver):
 # 
 def logout_pdu(driver):
 
-    try:
-        usrnm = PDU_WEBPAGE_CLASS.USERNAME
-        # press username menu
-        username_bttn = click_username(driver, usrnm)
+    usrnm = PDU_WEBPAGE_CLASS.USERNAME
+    # press username menu
+    username_bttn = click_username(driver, usrnm)
+    if(username_bttn is not None):
         write_log("{0} - username pressed.".format(logout_pdu.__name__))
-
-    except:
-        write_log("{0} - Username is not found.".format(logout_pdu.__name__))
 
     try:
         # logout
@@ -517,9 +514,37 @@ def logout_pdu(driver):
 # DT221012 - Moved from pdu_summary_wp.py.
 #  
 def click_username(driver, username):
-    username_xpath = "//button/span[text() = '{0}']".format(username)
-    username_bttn = click_button(driver, XPATH, username_xpath)
+    try:
+        username_xpath = "//button/span[text() = '{0}']".format(username)
+        username_bttn = click_button(driver, XPATH, username_xpath)
+    except:
+        write_log("{0} - {1} username is not found.".format(click_username.__name__, username))
+    
     return username_bttn
+
+
+# Function name: click_named_button
+# 
+# Click the button. Copied from click_username().
+#
+# dantesan--sada--20022-10-19 
+#
+# driver - WebDriver
+# button - The button name
+#
+# returns the button webelement.
+#         None, if none!
+#
+# 
+#  
+def click_named_button(driver, button_name):
+    try:
+        button_xpath = "//button/span[text() = '{0}']".format(button_name)
+        button_we = click_button(driver, XPATH, button_xpath)
+    except:
+        write_log("{0} - {1} button is not found.".format(click_button.__name__, button_name))
+    
+    return button_we
 
 
 # Function name: set_panel_to_icon_item()
@@ -540,11 +565,22 @@ def set_panel_to_icon_item(driver, icon_name, icon_menu_items, window_titles):
     for menu_item in icon_menu_items:
         write_log("{0} - Press \"{1}\" icon."
             .format(set_panel_to_icon_item.__name__, icon_name))
-        click_svg_icon(driver, icon_name)
+
+        # dantesan--sada--2022-10-19 : press icon or button
+        icon_we = click_svg_icon(driver, icon_name)
+        if(icon_we is None):
+            button_we = click_named_button(driver, icon_name)
+            if(button_we is None):
+                err_msg = "Icon or button with name "
+                err_msg = err_msg + "\"{0}\" is not found.".format(icon_name)
+                write_log("{0} - {1}"
+                    .format(set_panel_to_icon_item.__name__, err_msg))
+                return [False, err_msg]
+
         time.sleep(2)
         write_log("{0} - Press \"{1}\" menu item."
             .format(set_panel_to_icon_item.__name__, menu_item))
-        imenu_item_we  = click_dropdown_item(driver, menu_item)
+        menu_item_we  = click_dropdown_item(driver, menu_item)
         time.sleep(2)
         panel_label = verify_span_label(driver, menu_item)
         
