@@ -21,7 +21,7 @@ import time
 
 # MENU ITEM NAMES
 # username -----------------------------------------
-CHANGE_PASSWORD = 'Change Password'
+CHANGE_PASSWORD = "Change Password"
 USER_ACCOUNTS = "User Accounts"
 LOG_OUT = "Log Out"
 # username -----------------------------------------
@@ -34,11 +34,13 @@ RACK_ACCESS_CONTROL = "Rack Access Control"
 
 #svgs aria-label's
 
-AL_HOME = 'home'
-AL_SETTINGS = 'settings-option'
+AL_HOME = "home"
+AL_SETTINGS = "settings-option"
+AL_EVENT = "notes"
+AL_LANGUAGE = "language"
+AL_ADMIN_USER = "admin"
 
 #svgs aria-label's
-
 
 
 # CONSTANTS
