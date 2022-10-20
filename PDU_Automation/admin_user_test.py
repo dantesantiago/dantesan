@@ -37,8 +37,8 @@ ADMIN_USER_MENU_ITEMS = [ "Change Password",
                           "Log Out"
                         ]  
 # Log In button verifies Log Out was done.
-WINDOW_TITLE_NAMES = [ "Change Password",
-                       "User Settings"
+WINDOW_TITLE_NAMES = [ ["Change", "Password"],
+                       "User Settings",
                        "Log In"
                      ]
 
@@ -67,7 +67,8 @@ if __name__ == "__main__":
         write_log("{0} - Error in verifying admin user menu item windows."
             .format(__name__), None, True)   
 
-    logout_pdu(driver)
+    # no need. Logged Out already!
+    #logout_pdu(driver)
 
     close_Chrome(driver)
 
