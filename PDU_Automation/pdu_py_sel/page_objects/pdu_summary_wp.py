@@ -39,6 +39,7 @@ AL_SETTINGS = "settings-option"
 AL_EVENT = "notes"
 AL_LANGUAGE = "language"
 AL_ADMIN_USER = "admin"
+AL_CLOSE = "close"
 
 #svgs aria-label's
 
