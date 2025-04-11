@@ -1,0 +1,19 @@
+#/usr/bin/bash
+# dantesan--sada--2022-12-13 - bu PDU/TC python code only!
+#set -x
+
+PDU_TC_DIR="/cygdrive/C/PANDUIT/MIB/PDU/python_code/TC"
+echo
+#declare -A TC_DIRS=("tests" "utils" "page_objects" "g5")
+TC_DIRS=("tests" "utils" "page_objects" "cfg" ) #"g5")
+
+echo "cd ${PDU_TC_DIR}"
+cd ${PDU_TC_DIR}
+
+for tc_dir in "${TC_DIRS[@]}"
+do
+  echo "sshpass -p \"Panduit12\" scp -p -r Administrator@10.136.202.114:/cygdrive/C/PDU/TC/${tc_dir} ."
+  sshpass -p "Panduit12" scp -p -r Administrator@10.136.202.114:/cygdrive/C/PDU/TC/${tc_dir} .
+done
+echo
+

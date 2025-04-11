@@ -1,0 +1,97 @@
+#!/bin/bash
+# dantesan--2015-12-17 - show my specified process running
+
+#set -x
+
+all=ALL
+
+prg=$0
+shName=${prg##*/}
+
+if [ "$1" == "" ]; then
+  echo
+  echo Usage:
+  echo "${shName} <process_str>"
+  echo "  - Show my process given the string."
+  echo "    use ALL to show all!"
+  echo
+  exit -1
+fi
+
+procStr=${1}
+#username=`whoami`
+
+# dantesan--2016-12-07 - check if in format: dns\username
+#echo "${username}" | grep "\\"
+#if [ $? -eq 0 ]; then
+#  user=${username%\\}
+#fi
+
+#user=`echo "${username}" | awk -F \\ '{ print $2 }'`
+#username=${user}
+#user=`whoami`
+
+# dantsa--2017-01-23 -- Happy Birthday, Dathan!!! We love you!!!
+user=`whoami`
+# dantesan--sada--2022-07-18 - Usernam#e is tooooo lonnnng!
+#username=${user##*/} # dantsa ... not working! 
+# [Mon Jul 18 13:03:50 VM114] $ ps -eaf                     
+#      UID     PID    PPID  TTY        STIME COMMAND
+# Administ   53669   11777 pty5     09:04:04 /usr/bin/tail
+# Administ    6273    6268 pty0       Jul 14 /usr/bin/plasmashell
+# Administ    6272    6268 pty0       Jul 14 /usr/bin/krunner
+# Administ    6254       1 ?          Jul 14 /usr/bin/kdeinit5
+# Administ    6167    6166 pty0       Jul 14 /usr/bin/bash
+# Administ    6346       1 ?          Jul 14 /usr/bin/mintty
+# Administ   12340   11785 pty6       Jul 14 /usr/bin/lxqt-panel
+# ...
+# Administ    6219       1 ?          Jul 14 /usr/bin/kdeinit
+# Administ    6274    6268 pty0       Jul 14 /usr/bin/xembedsniproxy
+# Administ    6271    6268 pty0       Jul 14 /usr/bin/kwin_x11
+# Administ    6266       1 ?          Jul 14 /usr/libexec/kf5/kscreen_backend_launcher
+# [Mon Jul 18 13:03:54 VM114] $ 
+user=`whoami | cut -c1-8`
+
+#works in Linux
+#[Mon Jan 23 14:32:33] gis2con-jetty01-test : ~/story/2017 $ user=`whoami`
+#[Mon Jan 23 14:32:38] gis2con-jetty01-test : ~/story/2017 $ 
+#[Mon Jan 23 14:32:40] gis2con-jetty01-test : ~/story/2017 $ echo ${user##*/}
+#dantsa
+#[Mon Jan 23 14:32:51] gis2con-jetty01-test : ~/story/2017 $ 
+#
+# BOINK! because diff char!
+# [Mon Jan 23 14:42:31] $ whoami
+# vspnt01\dantsa
+# [Mon Jan 23 14:42:34] $ 
+# '\'!
+# [Mon Jan 23 14:44:00] $ echo ${user##*\\}
+# dantsa
+# [Mon Jan 23 14:44:11] $ 
+# 
+username=${user##*\\}
+# [Mon Jan 23 15:06:25] $ username='dantsa\r'
+# [Mon Jan 23 15:08:16] $ echo ${username%\\*}
+# dantsa
+# [Mon Jan 23 15:09:45] $ 
+# 
+#username=${username%\\*} <- carriage return not seen!
+# Delete it!
+username=`echo ${username} | tr -d '\r'`
+
+echo
+echo
+echo
+
+if [ "${procStr}" == "${all}" ]; then
+  ps -eaf | grep ${username} |  grep -v ${shName} | grep -v grep
+else
+  ps -eaf | grep ${username} | grep ${procStr} | grep -v ${shName} | grep -v grep
+  if [ $? -ne 0 ]; then
+    echo "No such process with ${procStr} string!!!"
+  fi
+fi
+
+echo
+echo
+echo
+
